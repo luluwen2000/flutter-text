@@ -256,24 +256,25 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-// Update TextEntry class to only compare text content
+// Update TextEntry class to have a unique ID
 class TextEntry {
+  final String id;  // Add unique ID
   final String text;
   final DateTime timestamp;
 
   TextEntry({
     required this.text,
     required this.timestamp,
-  });
+  }) : id = DateTime.now().microsecondsSinceEpoch.toString();  // Generate unique ID on creation
 
-  // Only compare the text content for equality
+  // Compare by ID for equality
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is TextEntry &&
           runtimeType == other.runtimeType &&
-          text == other.text;  // Remove timestamp from comparison
+          id == other.id;  // Compare IDs
 
   @override
-  int get hashCode => text.hashCode;  // Only use text for hash
+  int get hashCode => id.hashCode;  // Use ID for hash
 }
