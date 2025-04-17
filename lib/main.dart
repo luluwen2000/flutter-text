@@ -93,6 +93,8 @@ class _MyHomePageState extends State<MyHomePage> {
               // The rounded text field
               TextField(
                 controller: _textController, // Assign the controller
+                // Add onSubmitted handler
+                onSubmitted: (_) => _submitText(),
                 decoration: InputDecoration(
                   hintText: 'Enter text here...', // Placeholder text
                   // Style the border to be rounded
