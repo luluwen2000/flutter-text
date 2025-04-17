@@ -36,6 +36,8 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // Controller to manage the text field's content
   final TextEditingController _textController = TextEditingController();
+  // Add a FocusNode
+  final FocusNode _textFocusNode = FocusNode();
   
   // Add a list to store text entries with timestamps
   final List<TextEntry> _entries = [];
@@ -52,6 +54,8 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     
     _textController.clear();
+    // Request focus back to the text field
+    _textFocusNode.requestFocus();
     
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Text added successfully')),
@@ -62,6 +66,8 @@ class _MyHomePageState extends State<MyHomePage> {
   void dispose() {
     // Clean up the controller when the widget is disposed.
     _textController.dispose();
+    // Dispose the focus node when the widget is disposed
+    _textFocusNode.dispose();
     super.dispose();
   }
 
@@ -93,6 +99,7 @@ class _MyHomePageState extends State<MyHomePage> {
               // The rounded text field
               TextField(
                 controller: _textController, // Assign the controller
+                focusNode: _textFocusNode, // Add this line
                 // Add onSubmitted handler
                 onSubmitted: (_) => _submitText(),
                 decoration: InputDecoration(
