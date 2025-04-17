@@ -36,17 +36,25 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   // Controller to manage the text field's content
   final TextEditingController _textController = TextEditingController();
+  
+  // Add a list to store text entries with timestamps
+  final List<TextEntry> _entries = [];
 
   // Function to handle button press (currently just prints the text)
   void _submitText() {
-    // You can add logic here for what happens when the button is pressed
-    // For example, send the text to an API, save it locally, etc.
-    print('Submitted text: ${_textController.text}');
-    // Optionally clear the text field after submission
-    // _textController.clear();
-    // Optionally show a confirmation message
+    if (_textController.text.trim().isEmpty) return;
+    
+    setState(() {
+      _entries.insert(0, TextEntry(
+        text: _textController.text,
+        timestamp: DateTime.now(),
+      ));
+    });
+    
+    _textController.clear();
+    
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Text Submitted: ${_textController.text}')),
+      const SnackBar(content: Text('Text added successfully')),
     );
   }
 
@@ -67,7 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             // Center the children vertically within the Column
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start, // Changed to start alignment
             // Align children horizontally to the center
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
@@ -124,10 +132,45 @@ class _MyHomePageState extends State<MyHomePage> {
                   style: TextStyle(fontSize: 16.0), // Set button text size
                 ),
               ),
+              const SizedBox(height: 20.0),
+              // Add Expanded widget with ListView to show entries
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _entries.length,
+                  itemBuilder: (context, index) {
+                    final entry = _entries[index];
+                    return Card(
+                      margin: const EdgeInsets.symmetric(vertical: 5.0),
+                      child: ListTile(
+                        title: Text(entry.text),
+                        subtitle: Text(
+                          _formatTimestamp(entry.timestamp),
+                          style: const TextStyle(fontSize: 12.0),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
       ),
     );
   }
+  
+  String _formatTimestamp(DateTime timestamp) {
+    return '${timestamp.day}/${timestamp.month}/${timestamp.year} ${timestamp.hour}:${timestamp.minute}';
+  }
+}
+
+// Add a class to represent a text entry
+class TextEntry {
+  final String text;
+  final DateTime timestamp;
+
+  TextEntry({
+    required this.text,
+    required this.timestamp,
+  });
 }
