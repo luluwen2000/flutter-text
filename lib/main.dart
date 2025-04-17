@@ -54,12 +54,7 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     
     _textController.clear();
-    // Request focus back to the text field
     _textFocusNode.requestFocus();
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Text added successfully')),
-    );
   }
 
   @override
