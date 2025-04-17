@@ -41,8 +41,8 @@ class _MyHomePageState extends State<MyHomePage> {
   
   // Add a list to store text entries with timestamps
   final List<TextEntry> _entries = [];
-  // Add selection tracking
-  final Set<int> _selectedIndices = {};
+  // Change to track TextEntry objects instead of indices
+  final Set<TextEntry> _selectedEntries = {};
 
   // Function to handle button press (currently just prints the text)
   void _submitText() {
@@ -59,20 +59,20 @@ class _MyHomePageState extends State<MyHomePage> {
     _textFocusNode.requestFocus();
   }
 
-  // Add selection helpers
-  void _toggleSelection(int index) {
+  // Update selection helpers to work with TextEntry objects
+  void _toggleSelection(TextEntry entry) {
     setState(() {
-      if (_selectedIndices.contains(index)) {
-        _selectedIndices.remove(index);
+      if (_selectedEntries.contains(entry)) {
+        _selectedEntries.remove(entry);
       } else {
-        _selectedIndices.add(index);
+        _selectedEntries.add(entry);
       }
     });
   }
 
   void _clearSelection() {
     setState(() {
-      _selectedIndices.clear();
+      _selectedEntries.clear();
     });
   }
 
@@ -157,14 +157,14 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               const SizedBox(height: 20.0),
               // Add action bar when items are selected
-              if (_selectedIndices.isNotEmpty)
+              if (_selectedEntries.isNotEmpty)
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 8.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        '${_selectedIndices.length} selected',
+                        '${_selectedEntries.length} selected',
                         style: const TextStyle(
                           fontSize: 16.0,
                           fontWeight: FontWeight.bold,
@@ -202,16 +202,16 @@ class _MyHomePageState extends State<MyHomePage> {
                   itemCount: _entries.length,
                   itemBuilder: (context, index) {
                     final entry = _entries[index];
-                    final isSelected = _selectedIndices.contains(index);
+                    final isSelected = _selectedEntries.contains(entry);
 
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 5.0),
                       // Add subtle highlight when selected
                       color: isSelected ? Colors.blue.withOpacity(0.1) : null,
                       child: InkWell(
-                        onLongPress: () => _toggleSelection(index),
-                        onTap: _selectedIndices.isNotEmpty 
-                          ? () => _toggleSelection(index)
+                        onLongPress: () => _toggleSelection(entry),
+                        onTap: _selectedEntries.isNotEmpty 
+                          ? () => _toggleSelection(entry)
                           : null,
                         child: Row(
                           children: [
@@ -219,10 +219,10 @@ class _MyHomePageState extends State<MyHomePage> {
                             SizedBox(
                               width: 40,
                               child: Opacity(
-                                opacity: _selectedIndices.isNotEmpty || isSelected ? 1.0 : 0.2,
+                                opacity: _selectedEntries.isNotEmpty || isSelected ? 1.0 : 0.2,
                                 child: Checkbox(
                                   value: isSelected,
-                                  onChanged: (_) => _toggleSelection(index),
+                                  onChanged: (_) => _toggleSelection(entry),
                                   materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                                 ),
                               ),
@@ -256,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-// Add a class to represent a text entry
+// Update TextEntry class to only compare text content
 class TextEntry {
   final String text;
   final DateTime timestamp;
@@ -265,4 +265,15 @@ class TextEntry {
     required this.text,
     required this.timestamp,
   });
+
+  // Only compare the text content for equality
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TextEntry &&
+          runtimeType == other.runtimeType &&
+          text == other.text;  // Remove timestamp from comparison
+
+  @override
+  int get hashCode => text.hashCode;  // Only use text for hash
 }
