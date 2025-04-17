@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(const MyApp());
@@ -76,6 +77,25 @@ class _MyHomePageState extends State<MyHomePage> {
   void _clearSelection() {
     setState(() {
       _selectedEntries.clear();
+    });
+  }
+
+  // Add method to generate unique URL for an entry
+  String _generateEntryUrl(TextEntry entry) {
+    // This is a example URL format - adjust the base URL as needed
+    return 'myapp://text/${entry.id}';
+  }
+
+  // Add method to copy URL to clipboard
+  void _copyEntryLink(TextEntry entry) {
+    final url = _generateEntryUrl(entry);
+    Clipboard.setData(ClipboardData(text: url)).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Link copied to clipboard'),
+          duration: Duration(seconds: 2),
+        ),
+      );
     });
   }
 
@@ -239,6 +259,13 @@ class _MyHomePageState extends State<MyHomePage> {
                                   style: const TextStyle(fontSize: 12.0),
                                 ),
                               ),
+                            ),
+                            // Add copy link button
+                            IconButton(
+                              icon: const Icon(Icons.link, size: 20),
+                              onPressed: () => _copyEntryLink(entry),
+                              tooltip: 'Copy link to entry',
+                              visualDensity: VisualDensity.compact,
                             ),
                           ],
                         ),
