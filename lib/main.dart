@@ -46,7 +46,10 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // Function to handle button press (currently just prints the text)
   void _submitText() {
-    if (_textController.text.trim().isEmpty) return;
+    if (_textController.text.trim().isEmpty) {
+      _textFocusNode.requestFocus();  // Add this line to maintain focus even when empty
+      return;
+    }
     
     setState(() {
       _entries.insert(0, TextEntry(
