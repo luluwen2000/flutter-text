@@ -48,19 +48,22 @@ class _MyHomePageState extends State<MyHomePage> {
   // Function to handle button press (currently just prints the text)
   void _submitText() {
     if (_textController.text.trim().isEmpty) {
-      _textFocusNode.requestFocus();  // Add this line to maintain focus even when empty
+      _textFocusNode.requestFocus();
       return;
     }
     
     setState(() {
       _entries.insert(0, TextEntry(
-        text: _textController.text,
+        text: _textController.text.trimRight(),
         timestamp: DateTime.now(),
       ));
     });
     
-    _textController.clear();
-    _textFocusNode.requestFocus();
+    // Completely reset the TextField state
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _textController.value = TextEditingValue.empty;
+      _textFocusNode.requestFocus();
+    });
   }
 
   // Update selection helpers to work with TextEntry objects
@@ -133,31 +136,59 @@ class _MyHomePageState extends State<MyHomePage> {
               ),
               // Add some space between the title and the text field
               const SizedBox(height: 30.0),
-              // The rounded text field
-              TextField(
-                controller: _textController, // Assign the controller
-                focusNode: _textFocusNode, // Add this line
-                // Add onSubmitted handler
-                onSubmitted: (_) => _submitText(),
-                decoration: InputDecoration(
-                  hintText: 'Enter text here...', // Placeholder text
-                  // Style the border to be rounded
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0), // Adjust radius for roundness
-                    borderSide: const BorderSide(
-                      color: Colors.grey, // Border color
+              RawKeyboardListener(
+                focusNode: FocusNode(),
+                onKey: (RawKeyEvent event) {
+                  if (event is RawKeyDownEvent) {
+                    if (event.logicalKey == LogicalKeyboardKey.enter) {
+                      if (event.isShiftPressed) {
+                        // Manually insert newline at current cursor position
+                        final currentText = _textController.text;
+                        final selection = _textController.selection;
+                        final newText = currentText.replaceRange(
+                          selection.start,
+                          selection.end,
+                          '\n',
+                        );
+                        _textController.value = TextEditingValue(
+                          text: newText,
+                          selection: TextSelection.collapsed(
+                            offset: selection.start + 1,
+                          ),
+                        );
+                      } else {
+                        // Prevent default enter behavior and submit
+                        _submitText();
+                      }
+                      // Prevent the default enter behavior
+                      return;
+                    }
+                  }
+                },
+                child: TextField(
+                  controller: _textController,
+                  focusNode: _textFocusNode,
+                  maxLines: null,
+                  keyboardType: TextInputType.multiline,
+                  // Prevent the default enter behavior
+                  onEditingComplete: () {},
+                  decoration: InputDecoration(
+                    hintText: 'Enter text here... (Shift+Enter for new line)',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: const BorderSide(
+                        color: Colors.grey,
+                      ),
                     ),
-                  ),
-                  // Style the border when the field is focused
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(25.0),
-                    borderSide: BorderSide(
-                      color: Theme.of(context).primaryColor, // Use theme color when focused
-                      width: 2.0,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(25.0),
+                      borderSide: BorderSide(
+                        color: Theme.of(context).primaryColor,
+                        width: 2.0,
+                      ),
                     ),
+                    contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
                   ),
-                  // Add some padding inside the text field
-                  contentPadding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
                 ),
               ),
               // Add some space between the text field and the button
