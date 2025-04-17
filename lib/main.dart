@@ -17,15 +17,17 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue, // You can change the primary color
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: const MyHomePage(title: 'Simple Input Page'), // Title for the AppBar
+      // Add this line to remove the debug banner
+      debugShowCheckedModeBanner: false,
+      // Removed the title parameter as it's no longer used by MyHomePage
+      home: const MyHomePage(),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
+  // Removed the title parameter as it's no longer needed
+  const MyHomePage({super.key});
 
   @override
   State<MyHomePage> createState() => _MyHomePageState();
@@ -58,12 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        // Set the AppBar background color
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Set the title of the AppBar from the widget's properties
-        title: Text(widget.title),
-      ),
+      // The AppBar has been removed from here
       body: Center( // Center the content vertically and horizontally
         child: Padding(
           // Add some padding around the column content
